@@ -15,24 +15,31 @@
 %% Load in directories
 clear all; clc;
 
-HomeDir = '/Volumes/yassamri3/SALSA_SleepStudy/BEACoN_SALSA_N40/GraphTheory';
+HomeDir = '/Users/bianca/Mirror/GitHub/PVTNetworkStats/GraphTheoryScripts';
 FCDir = [HomeDir,'/FC_matrix_bivariate'];
 BinDir = [FCDir, '/WeightedMatrix/'];
 CommDir = [BinDir, 'BCT_output_Step3_NetworkModularity_Weighted/'];
 
 cd(HomeDir);
-sub_info = readtable('BEACoN_SALSA_n40_sublist.csv');
-subsToExclude = sub_info.to_exclude;
-%sublist = sub_info.beacon_id;
+sub_info = readtable('CC1p0_ROI_CONN_n178_sublist.csv');
+% Read the CSV file into a table
+include_data = readtable('/Users/bianca/Mirror/GitHub/PVTNetworkStats/REST_Incude_Var.csv');
+
+% Extract the first column
+subsToInclude = include_data{:, 1};
+
+% Reverse the values (0s become 1s and 1s become 0s)
+subsToExclude = 1 - subsToInclude;
 
 cd(FCDir);
-sublist = load('FCmatrix_151ROIs_N40.mat', 'sublist');
+sublist = load('FCmatrix_11ROIs_N178.mat', 'sublist');
 sublist = sublist.sublist;
 numSubs = length(sublist);
 
 % Select diretory with input data (symmetric matrices)
-sym_matrix_dir = BinDir;
-cd(BinDir);
+%sym_matrix_dir = BinDir;
+cd(FCDir);
+sym_matrix_dir = FCDir;
 % Set generic file path
 sym_file_path = fullfile(sym_matrix_dir, '*BCTweighted.mat');
 % Create object with all the matrix files
@@ -61,6 +68,9 @@ NormStrength = zeros(numNodes, numSubs);
 
 
 for i = 1:length(files)
+    if i == 128 || 154%skip file 128 for now 
+        continue;
+    end
     fprintf(1, 'Compiling all subject matrices: now reading in and calculating node strengths for %s\n', files(i).name);
     load(files(i).name, 'A_sym_norm'); %load the weighted matrix
     A = A_sym_norm; 
@@ -117,6 +127,9 @@ ylabel('Count')
 evCentrality = zeros(numSubs, numNodes);
 B = ones(numNodes, numNodes); % create a matrix of ones with the same size as our adj matrix
 for i = 1:length(files)
+    if i == 128 || 154%skip file 128 for now 
+        continue;
+    end
     fprintf(1, 'Compiling all subject matrices: now reading in and calculating eigenvector centrality for %s\n', files(i).name);
     load(files(i).name, 'A_sym_norm'); %load the weighted matrix
     A = A_sym_norm; 
@@ -206,11 +219,11 @@ nmiVals(2,6) = nmi(pCoef_scaled_round(:,3), pCoef_scaled_round(:,4));
 % Gamma levels 1 and 4 are most dissimilar, so I will include those in my
 % analyses
 %% Load in ROI labels for analyses
-maskDir = '/Volumes/yassamri3/SALSA_SleepStudy/BEACoN_SALSA_N40/AnalysisMask/n40_AnalysisMask'
-cd(maskDir);
-ROIlabels = readtable('n40_finalMask_ROINumsAndLabels.csv');
+%maskDir = '/Volumes/yassamri3/SALSA_SleepStudy/BEACoN_SALSA_N40/AnalysisMask/n40_AnalysisMask'
+%cd(maskDir);
+%ROIlabels = readtable('n40_finalMask_ROINumsAndLabels.csv');
 %% SAVE to mat file 
-save([BinDir,'NodeRoles_n40.mat'],'numNodes','sublist', 'numSubs', 'PosStrength', 'NegStrength', 'NormStrength', 'TotalNodeWeight', 'evCentrality', 'Pos_pCoef', 'Neg_pCoef' , 'ROIlabels');
+save([BinDir,'NodeRoles_n178.mat'],'numNodes','sublist', 'numSubs', 'PosStrength', 'NegStrength', 'NormStrength', 'TotalNodeWeight', 'evCentrality', 'Pos_pCoef', 'Neg_pCoef' , 'names');
 
 %save recalculated pos participation coefficient - EC did not need to be
 %recalc with new range of gamma
@@ -218,31 +231,31 @@ save([BinDir,'NodeRoles_n40.mat'],'numNodes','sublist', 'numSubs', 'PosStrength'
 fprintf('Participation Coefficient .mat file generated');
 %% Pull values for specific ROIs
 % Subcortical ROIs in mask
-hipp = find(contains(ROIlabels.regionLabel, 'Hipp'));
-amg = find(contains(ROIlabels.regionLabel, 'Amyg'));
+%hipp = find(contains(ROIlabels.regionLabel, 'Hipp'));
+%amg = find(contains(ROIlabels.regionLabel, 'Amyg'));
 
 % Frontal ROIs in Mask
-ifs = find(contains(ROIlabels.regionLabel, 'IFS'));
-a44 = find(contains(ROIlabels.regionLabel, 'A44'));
-a45 = find(contains(ROIlabels.regionLabel, 'A45'));
-a14m = find(contains(ROIlabels.regionLabel, 'A14m'));
+%ifs = find(contains(ROIlabels.regionLabel, 'IFS'));
+%a44 = find(contains(ROIlabels.regionLabel, 'A44'));
+%a45 = find(contains(ROIlabels.regionLabel, 'A45'));
+%a14m = find(contains(ROIlabels.regionLabel, 'A14m'));
 
 %vmPFC ROIs in mask
 %A13, A11, A10
-a13 = find(contains(ROIlabels.regionLabel, 'A13'));
-a11 = find(contains(ROIlabels.regionLabel, 'A11'));
-a10 = find(contains(ROIlabels.regionLabel, 'A10'));
+%a13 = find(contains(ROIlabels.regionLabel, 'A13'));
+%a11 = find(contains(ROIlabels.regionLabel, 'A11'));
+%a10 = find(contains(ROIlabels.regionLabel, 'A10'));
 
 %Control ROIs in mask: Occipital lobe
-vmPos = find(contains(ROIlabels.regionLabel, 'vmPOS'));
+%vmPos = find(contains(ROIlabels.regionLabel, 'vmPOS'));
 
 %Entorhinal Cortex and temporal lobe control (parahippocampal)
-a35 = find(contains(ROIlabels.regionLabel, 'A35')); %parahippocampal
-a28 = find(contains(ROIlabels.regionLabel, 'A28')); %entorhinal cortex
+%a35 = find(contains(ROIlabels.regionLabel, 'A35')); %parahippocampal
+%a28 = find(contains(ROIlabels.regionLabel, 'A28')); %entorhinal cortex
 
-%Compile all indices of ROIS
-ROIS = vertcat(hipp, amg, ifs, a44, a45, a14m, vmPos, a13, a11, a10, a35, a28);
-ROIS = sort(ROIS); 
+%Compile all indices of ROIS%
+%ROIS = vertcat(hipp, amg, ifs, a44, a45, a14m, vmPos, a13, a11, a10, a35, a28);
+%ROIS = sort(ROIS); 
 
 centrality_ROIS = evCentrality(:,ROIS);
 Spos_ROIS = PosStrength(ROIS,:)';
@@ -319,9 +332,10 @@ clear i;
 
 
 betweenness_ROIs = betweenness_centrality(:,ROIS); %pull the ROIS of interest
-bc_table = array2table(betweenness_ROIs); %make it a table
-bc_table.Properties.VariableNames = labels;
-bc_table.beacon_id = sublist; 
+bc_table = array2table(betweenness_centrality); %make it a table
+bc_table.Properties.VariableNames = names;
+bc_table.nsubid = sublist; 
+%bc_table.ROI = names; 
 
 %add labels and sub list
 histogram(betweenness_centrality) % chceking distribution
@@ -329,5 +343,7 @@ xlabel('Betweenness Centrality')
 ylabel('Count')
 
 cd(HomeDir);
-writetable(bc_table, 'BetweennessCentrality_n40_37ROIs.csv');
+writetable(bc_table, 'BetweennessCentrality_n178_11ROIs.csv');
+
+
 

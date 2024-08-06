@@ -2,10 +2,10 @@
 
 %% Step 1. Set directories and load subject list mat file.
 clear all; clc;
-HomeDir =  '/Volumes/yassamri3/SALSA_SleepStudy/BEACoN_SALSA_N40/GraphTheory';
+HomeDir =  '/Users/bianca/Mirror/GitHub/PVTNetworkStats/GraphTheoryScripts';
 FCDir = [HomeDir, '/FC_matrix_bivariate/'];
 cd(FCDir);
-FCmatrix = load('FCmatrix_151ROIs_N40.mat');
+FCmatrix = load('FCmatrix_11ROIs_N178.mat');
 
 sublist = FCmatrix.sublist;
 
@@ -22,7 +22,7 @@ for i = 1:length(sublist)
       % averaging corresponding lower and upper diagonal elements in the matrices (semipartial values are not symmetric)
      
       % Load matrix output from CONN
-      load([FCDir,subject,'_FCmatrix_151ROIs.mat'])
+      load([FCDir,subject,'_FCmatrix_11ROIs.mat'])
       A = FCmatrix; % make A into our functional connectivity matrix
      
       %Make matrix symmetric by summing it with its transpose and dividing all elements in half. This is essentially taking the average of the

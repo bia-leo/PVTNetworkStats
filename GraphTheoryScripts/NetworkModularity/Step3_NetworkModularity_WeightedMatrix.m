@@ -9,20 +9,33 @@
 %% Step 1- Set directories
 clear all; clc;
 
-HomeDir = '/Volumes/yassamri3/SALSA_SleepStudy/BEACoN_SALSA_N40/GraphTheory';
+HomeDir = '/Users/bianca/Mirror/GitHub/PVTNetworkStats/GraphTheoryScripts';
 FCDir = [HomeDir,'/FC_matrix_bivariate'];
 BinDir = [FCDir, '/WeightedMatrix/'];
 OutputDir = [BinDir,'BCT_output_Step3_NetworkModularity_Weighted/'];
 % Create folder to store node partitions for each subject*condition  matrix
 partitionDir = OutputDir;
+%mkdir(partitionDir); 
 
 cd(HomeDir);
-sub_info = readtable('BEACoN_SALSA_n40_sublist.csv');
-subsToExclude = sub_info.to_exclude;
+sub_info = readtable('CC1p0_ROI_CONN_n178_sublist.csv');
+
+%%  COME BACK HERE
+%subsToExclude = sub_info.to_exclude;
+include_data=readtable('/Users/bianca/Mirror/GitHub/PVTNetworkStats/REST_Incude_Var.csv');
+% Read the CSV file into a table
+include_data = readtable('/Users/bianca/Mirror/GitHub/PVTNetworkStats/REST_Incude_Var.csv');
+
+% Extract the first column
+subsToInclude = include_data{:, 1};
+
+% Reverse the values (0s become 1s and 1s become 0s)
+subsToExclude = 1 - subsToInclude;
+
 %sublist = sub_info.beacon_id;
 
 cd(FCDir);
-sublist = load('FCmatrix_151ROIs_N40.mat', 'sublist');
+sublist = load('FCmatrix_11ROIs_N178.mat', 'sublist');
 sublist = sublist.sublist;
 numSubs = length(sublist);
 cd(BinDir);
@@ -34,7 +47,8 @@ fprintf('\n Step 1 complete- necessary directories set and subject list created.
 % median
 
 % Select diretory with input data (symmetric matrices)
-sym_matrix_dir = BinDir;
+%sym_matrix_dir = BinDir;
+sym_matrix_dir = FCDir;
 % Set generic file path
 sym_file_path = fullfile(sym_matrix_dir, '*BCTweighted.mat');
 % Create object with all the matrix files
@@ -46,6 +60,7 @@ load(files(1).name, 'A_sym_norm');
 adj_matrix = A_sym_norm;
 clear A_sym_norm;
 numNodes = size(adj_matrix, 1);
+
 
 % initialize empty matrix to contain all of the processed matrices for each
 % subject
@@ -66,11 +81,11 @@ clear i;
 %     numbers 36 and 37. 
 % So the final combined matrix to calc median weight should have dimensions 151 x 151 x 31
 
-sub_info.to_exclude(42) = 1; % SALSA057 doesnt have a scan so we need to exclude them
+%sub_info.to_exclude(42) = 1; % SALSA057 doesnt have a scan so we need to exclude them
 
 %subsToInclude = [2,3,5:8,10:13,15:27,29:35,38:41]; % Indicate the subject nums we want to keep
-subsToInclude = sub_info.beacon_id(sub_info.to_exclude ~= 1) % process all subjects who are being kept
-
+%subsToInclude = sub_info.beacon_id(sub_info.to_exclude ~= 1) % process all subjects who are being kept
+%subsToInclude = sub_info.nsubid; 
 allProcessedMatrices = allProcessedMatrices(:,:,length(subsToInclude)); % conditional indexing based on the subject nums to keep
 
 B=permute(allProcessedMatrices,[1:length(subsToInclude)]); % go in order of first subjectto last of those we keep
@@ -132,6 +147,9 @@ fprintf('\n Step 3 Complete- Files loaded, parameters set, cells and matrices pr
 
 % Cycle through each file
 for index = 1:length(files)
+    if index == 128 || 154%skip file 128 for now 
+        continue;
+    end
   % Assign file name to variable  
   fileName = files(index).name;
   % Attach path to file name
@@ -276,7 +294,7 @@ for index = 1:length(files)
   % gamma tells us our range of gamma values
 
   subject = num2str(sublist(index));
-  fprintf(1, 'Step 4 Complete- Final Partitions and Modularity Values saved for BEACoN subject %s\n', subject);
+  fprintf(1, 'Step 4 Complete- Final Partitions and Modularity Values saved for subject %s\n', subject);
 
  
 end
@@ -290,5 +308,5 @@ FinalGroupQ((GroupQ(:,9) == 1),2:end) = NaN; %wherever there is a 0, set the Q v
 
 % convert total group Q values to csv
 cd(OutputDir);
-csvwrite('GroupFinalQValues_n40.csv', FinalGroupQ);
+csvwrite('GroupFinalQValues_n178.csv', FinalGroupQ);
 

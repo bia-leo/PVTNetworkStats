@@ -1,7 +1,7 @@
 %% Step 1. Extract FC matrix from CONN (JNA updated 10/21 - CONN 20.B) - make sure to run STEP 0 prior to this
 clear all; clc;
-HomeDir = '/Volumes/yassamri3/SALSA_SleepStudy/BEACoN_SALSA_N40/GraphTheory';
-CONNDir = '/Volumes/yassamri3/SALSA_SleepStudy/BEACoN_SALSA_N40/GraphTheory'; 
+HomeDir = '/Users/bianca/Mirror/GitHub/PVTNetworkStats/GraphTheoryScripts';
+CONNDir = '/Users/bianca/Mirror/GitHub/PVTNetworkStats/GraphTheoryScripts'; 
 % Create sublist .mat file with subject IDs on the top row
 %sublist = [HomeDir,'sublist_BEACoN_MTLFC_N65_FINAL.mat'];
 %load(sublist);
@@ -9,12 +9,12 @@ CONNDir = '/Volumes/yassamri3/SALSA_SleepStudy/BEACoN_SALSA_N40/GraphTheory';
 fprintf('\n Step 1 Complete- Home and Conn output directories set \n');
 
 %% Step 2. Load CONN ROI-to-ROI matrix (3D)
-load([CONNDir,'/resultsROI_Condition001_n40_CombinedZachSoyunYassaScans_05mmMotionThreshold.mat']); % FC matrix here
+load([CONNDir,'/resultsROI_Condition001.mat']); % FC matrix here
 % matrix with ROI-to-ROI results is "Z" - number of ROIs (names) x number
 % of ROIs  (names2) x number of subjects
     % CONN 20.B does not include irrelevant ROIs in names2 now! :)
 numROIs = length(names); %Determine the number of ROIs
-clear names2 regressors soyunDOF soyunSE xyz zachDOF zachSE yassaDOF yassaSE
+clear names2 regressors DOF SE xyz 
 
 fprintf('\n Step 2 Complete- Conn ROI file loaded \n');
     
@@ -30,7 +30,7 @@ FCmatrix = CombinedScans(1:numROIs,1:numROIs,:); % for combined scan types
 % save files    
 savDir = [HomeDir,'/FC_matrix_bivariate/'];
 %mkdir(savDir);
-save([savDir,'FCmatrix_151ROIs_N40.mat'],'FCmatrix','names', 'sublist', 'numROIs');
+save([savDir,'FCmatrix_11ROIs_N178.mat'],'FCmatrix','names', 'sublist', 'numROIs');
 clear FCmatrix;
 
 fprintf('\n Step 3 Complete- ROI-ROI FC matrix extracted and saved \n');
@@ -44,7 +44,7 @@ for i = 1:length(sublist)
     FCmatrix = CombinedScans(1:numROIs,1:numROIs,i); % all ROIs
     
     %savDir = [HomeDir,'/FC_matrix_bivariate/'];
-    save([savDir,subject,'_FCmatrix_151ROIs.mat'],'FCmatrix','names', 'numROIs') % change number of ROIs in mat file name to save
+    save([savDir,subject,'_FCmatrix_11ROIs.mat'],'FCmatrix','names', 'numROIs') % change number of ROIs in mat file name to save
     clear FCmatrix
   
 end
